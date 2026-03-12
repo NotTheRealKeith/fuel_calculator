@@ -37,16 +37,51 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   double fuelUsed = 0;
   double tripCost = 0;
 
+  // Tracks whether the user wants the calculator to include the return leg.
   bool isReturnTrip = false;
 
-  // Reads the current inputs and updates the calculated totals.
-  void calculateFuelCost() {
-    // Fallback to zero if any field is empty or invalid.
-    final double distance = double.tryParse(distanceController.text) ?? 0;
-    final double consumption = double.tryParse(consumptionController.text) ?? 0;
-    final double fuelPrice = double.tryParse(fuelPriceController.text) ?? 0;
+  String? distanceError;
+  String? consumptionError;
+  String? fuelPriceError;
 
+  void calculateFuelCost() {
     FocusScope.of(context).unfocus();
+
+    // Clear previous errors
+    distanceError = null;
+    consumptionError = null;
+    fuelPriceError = null;
+
+    final String distanceText = distanceController.text.trim();
+    final String consumptionText = consumptionController.text.trim();
+    final String fuelPriceText = fuelPriceController.text.trim();
+
+    bool hasError = false;
+
+    if (distanceText.isEmpty) {
+      distanceError = 'Please enter a distance';
+      hasError = true;
+    }
+
+    if (consumptionText.isEmpty) {
+      consumptionError = 'Please enter fuel consumption';
+      hasError = true;
+    }
+
+    if (fuelPriceText.isEmpty) {
+      fuelPriceError = 'Please enter a fuel price';
+      hasError = true;
+    }
+
+    if (hasError) {
+      setState(() {});
+      return;
+    }
+
+    // Parse values after validation
+    final double distance = double.tryParse(distanceText) ?? 0;
+    final double consumption = double.tryParse(consumptionText) ?? 0;
+    final double fuelPrice = double.tryParse(fuelPriceText) ?? 0;
 
     setState(() {
       double calculatedFuelUsed = (distance / 100) * consumption;
@@ -66,11 +101,13 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Car Fuel Calculator')),
+      // Keeps the full form accessible when the keyboard is open or space is tight.
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
+              // Shows the latest calculation summary before the editable fields.
               // Displays the calculated fuel needed for the trip.
               Text(
                 'Fuel Used: ${fuelUsed.toStringAsFixed(2)} L',
@@ -93,9 +130,10 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Distance (km)',
                   border: OutlineInputBorder(),
+                  errorText: distanceError,
                 ),
               ),
 
@@ -107,9 +145,10 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Fuel Consumption (l/100km)',
                   border: OutlineInputBorder(),
+                  errorText: consumptionError,
                 ),
               ),
 
@@ -121,12 +160,14 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Fuel Price (\$ per liter)',
                   border: OutlineInputBorder(),
+                  errorText: fuelPriceError,
                 ),
               ),
 
+              // Lets the user double the totals for a round trip.
               SwitchListTile(
                 title: const Text('Return Trip'),
                 value: isReturnTrip,
