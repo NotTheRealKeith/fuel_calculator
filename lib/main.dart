@@ -37,18 +37,99 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   double fuelUsed = 0;
   double tripCost = 0;
 
-  // Reads the current inputs and updates the calculated totals.
-  void calculateFuelCost() {
-    // Fallback to zero if any field is empty or invalid.
-    final double distance = double.tryParse(distanceController.text) ?? 0;
-    final double consumption = double.tryParse(consumptionController.text) ?? 0;
-    final double fuelPrice = double.tryParse(fuelPriceController.text) ?? 0;
+  // Tracks whether the user wants the calculator to include the return leg.
+  bool isReturnTrip = false;
 
+  String? distanceError;
+  String? consumptionError;
+  String? fuelPriceError;
+
+  void calculateFuelCost() {
     FocusScope.of(context).unfocus();
 
+    // Clear previous errors
+    distanceError = null;
+    consumptionError = null;
+    fuelPriceError = null;
+
+    final String distanceText = distanceController.text.trim();
+    final String consumptionText = consumptionController.text.trim();
+    final String fuelPriceText = fuelPriceController.text.trim();
+
+    bool hasError = false;
+
+    if (distanceText.isEmpty) {
+      distanceError = 'Please enter a distance';
+      hasError = true;
+    }
+
+    if (consumptionText.isEmpty) {
+      consumptionError = 'Please enter fuel consumption';
+      hasError = true;
+    }
+
+    if (fuelPriceText.isEmpty) {
+      fuelPriceError = 'Please enter a fuel price';
+      hasError = true;
+    }
+
+    if (hasError) {
+      setState(() {});
+      return;
+    }
+
+    // Parse values after validation
+    final double? distance = double.tryParse(distanceText);
+    final double? consumption = double.tryParse(consumptionText);
+    final double? fuelPrice = double.tryParse(fuelPriceText);
+
+    if (distance == null) {
+      distanceError = 'Enter a valid number';
+      hasError = true;
+    }
+
+    if (consumption == null) {
+      consumptionError = 'Enter a valid number';
+      hasError = true;
+    }
+
+    if (fuelPrice == null) {
+      fuelPriceError = 'Enter a valid number';
+      hasError = true;
+    }
+
+    if (hasError) {
+      setState(() {});
+      return;
+    }
+
     setState(() {
-      fuelUsed = (distance / 100) * consumption;
-      tripCost = fuelUsed * fuelPrice;
+      double calculatedFuelUsed = (distance! / 100) * consumption!;
+      double calculatedTripCost = calculatedFuelUsed * fuelPrice!;
+
+      if (isReturnTrip) {
+        calculatedFuelUsed *= 2;
+        calculatedTripCost *= 2;
+      }
+
+      fuelUsed = calculatedFuelUsed;
+      tripCost = calculatedTripCost;
+    });
+  }
+
+  void resetFields() {
+    distanceController.clear();
+    consumptionController.clear();
+    fuelPriceController.clear();
+
+    setState(() {
+      fuelUsed = 0;
+      tripCost = 0;
+      isReturnTrip = false;
+
+      distanceError = null;
+      consumptionError = null;
+      fuelPriceError = null;
     });
   }
 
@@ -56,11 +137,13 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Car Fuel Calculator')),
+      // Keeps the full form accessible when the keyboard is open or space is tight.
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
+              // Shows the latest calculation summary before the editable fields.
               // Displays the calculated fuel needed for the trip.
               Text(
                 'Fuel Used: ${fuelUsed.toStringAsFixed(2)} L',
@@ -80,10 +163,13 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               // Distance input used by the calculator.
               TextField(
                 controller: distanceController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
                   labelText: 'Distance (km)',
                   border: OutlineInputBorder(),
+                  errorText: distanceError,
                 ),
               ),
 
@@ -92,10 +178,13 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               // Fuel efficiency input used by the calculator.
               TextField(
                 controller: consumptionController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
                   labelText: 'Fuel Consumption (l/100km)',
                   border: OutlineInputBorder(),
+                  errorText: consumptionError,
                 ),
               ),
 
@@ -104,22 +193,46 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               // Price of fuel input used by the calculator.
               TextField(
                 controller: fuelPriceController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
                   labelText: 'Fuel Price (\$ per liter)',
                   border: OutlineInputBorder(),
+                  errorText: fuelPriceError,
                 ),
+              ),
+
+              // Lets the user double the totals for a round trip.
+              SwitchListTile(
+                title: const Text('Return Trip'),
+                value: isReturnTrip,
+                onChanged: (value) {
+                  setState(() {
+                    isReturnTrip = value;
+                  });
+                },
               ),
 
               const SizedBox(height: 24.0),
 
               // Button to trigger the fuel cost calculation.
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: calculateFuelCost,
-                  child: const Text('Calculate Fuel Cost'),
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: calculateFuelCost,
+                      child: const Text('Calculate'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: resetFields,
+                      child: const Text('Reset'),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
