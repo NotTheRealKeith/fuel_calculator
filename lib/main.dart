@@ -79,13 +79,33 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     }
 
     // Parse values after validation
-    final double distance = double.tryParse(distanceText) ?? 0;
-    final double consumption = double.tryParse(consumptionText) ?? 0;
-    final double fuelPrice = double.tryParse(fuelPriceText) ?? 0;
+    final double? distance = double.tryParse(distanceText);
+    final double? consumption = double.tryParse(consumptionText);
+    final double? fuelPrice = double.tryParse(fuelPriceText);
+
+    if (distance == null) {
+      distanceError = 'Enter a valid number';
+      hasError = true;
+    }
+
+    if (consumption == null) {
+      consumptionError = 'Enter a valid number';
+      hasError = true;
+    }
+
+    if (fuelPrice == null) {
+      fuelPriceError = 'Enter a valid number';
+      hasError = true;
+    }
+
+    if (hasError) {
+      setState(() {});
+      return;
+    }
 
     setState(() {
-      double calculatedFuelUsed = (distance / 100) * consumption;
-      double calculatedTripCost = calculatedFuelUsed * fuelPrice;
+      double calculatedFuelUsed = (distance! / 100) * consumption!;
+      double calculatedTripCost = calculatedFuelUsed * fuelPrice!;
 
       if (isReturnTrip) {
         calculatedFuelUsed *= 2;
@@ -94,6 +114,22 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
       fuelUsed = calculatedFuelUsed;
       tripCost = calculatedTripCost;
+    });
+  }
+
+  void resetFields() {
+    distanceController.clear();
+    consumptionController.clear();
+    fuelPriceController.clear();
+
+    setState(() {
+      fuelUsed = 0;
+      tripCost = 0;
+      isReturnTrip = false;
+
+      distanceError = null;
+      consumptionError = null;
+      fuelPriceError = null;
     });
   }
 
@@ -181,12 +217,22 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               const SizedBox(height: 24.0),
 
               // Button to trigger the fuel cost calculation.
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: calculateFuelCost,
-                  child: const Text('Calculate Fuel Cost'),
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: calculateFuelCost,
+                      child: const Text('Calculate'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: resetFields,
+                      child: const Text('Reset'),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
