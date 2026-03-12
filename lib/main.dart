@@ -12,19 +12,19 @@ class FuelCalculatorApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Car Fuel Calculator',
-      home: const calculatorScreen(),
+      home: const CalculatorScreen(),
     );
   }
 }
 
-class calculatorScreen extends StatefulWidget {
-  const calculatorScreen({super.key});
+class CalculatorScreen extends StatefulWidget {
+  const CalculatorScreen({super.key});
 
   @override
-  State<calculatorScreen> createState() => _calculatorScreenState();
+  State<CalculatorScreen> createState() => _CalculatorScreenState();
 }
 
-class _calculatorScreenState extends State<calculatorScreen> {
+class _CalculatorScreenState extends State<CalculatorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
