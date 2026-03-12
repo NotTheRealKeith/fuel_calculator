@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+// App entry point.
 void main() {
   runApp(const FuelCalculatorApp());
 }
 
+// Root widget that configures the app shell.
 class FuelCalculatorApp extends StatelessWidget {
   const FuelCalculatorApp({super.key});
 
@@ -17,6 +19,7 @@ class FuelCalculatorApp extends StatelessWidget {
   }
 }
 
+// Main screen for collecting fuel calculation inputs.
 class CalculatorScreen extends StatefulWidget {
   const CalculatorScreen({super.key});
 
@@ -33,6 +36,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         padding: EdgeInsets.all(16.0),
         child: Column(
           children: [
+            // Distance input used by the calculator.
             TextField(
               decoration: const InputDecoration(
                 labelText: 'Distance (km)',
