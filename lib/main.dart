@@ -90,7 +90,9 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               // Distance input used by the calculator.
               TextField(
                 controller: distanceController,
-                keyboardType: TextInputType.number,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 decoration: const InputDecoration(
                   labelText: 'Distance (km)',
                   border: OutlineInputBorder(),
@@ -102,7 +104,9 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               // Fuel efficiency input used by the calculator.
               TextField(
                 controller: consumptionController,
-                keyboardType: TextInputType.number,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 decoration: const InputDecoration(
                   labelText: 'Fuel Consumption (l/100km)',
                   border: OutlineInputBorder(),
@@ -114,7 +118,9 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               // Price of fuel input used by the calculator.
               TextField(
                 controller: fuelPriceController,
-                keyboardType: TextInputType.number,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 decoration: const InputDecoration(
                   labelText: 'Fuel Price (\$ per liter)',
                   border: OutlineInputBorder(),
