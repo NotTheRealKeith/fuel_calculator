@@ -61,6 +61,22 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
+              // Displays the calculated fuel needed for the trip.
+              Text(
+                'Fuel Used: ${fuelUsed.toStringAsFixed(2)} L',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+
+              const SizedBox(height: 8),
+
+              // Displays the estimated fuel cost for the trip.
+              Text(
+                'Trip Cost: \$${tripCost.toStringAsFixed(2)}',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+
+              const SizedBox(height: 24),
+
               // Distance input used by the calculator.
               TextField(
                 controller: distanceController,
@@ -104,22 +120,6 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                   onPressed: calculateFuelCost,
                   child: const Text('Calculate Fuel Cost'),
                 ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Displays the calculated fuel needed for the trip.
-              Text(
-                'Fuel Used: ${fuelUsed.toStringAsFixed(2)} L',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-
-              const SizedBox(height: 8),
-
-              // Displays the estimated fuel cost for the trip.
-              Text(
-                'Trip Cost: \$${tripCost.toStringAsFixed(2)}',
-                style: Theme.of(context).textTheme.titleLarge,
               ),
             ],
           ),
