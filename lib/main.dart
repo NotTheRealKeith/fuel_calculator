@@ -37,6 +37,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   double fuelUsed = 0;
   double tripCost = 0;
 
+  bool isReturnTrip = false;
+
   // Reads the current inputs and updates the calculated totals.
   void calculateFuelCost() {
     // Fallback to zero if any field is empty or invalid.
@@ -47,8 +49,16 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     FocusScope.of(context).unfocus();
 
     setState(() {
-      fuelUsed = (distance / 100) * consumption;
-      tripCost = fuelUsed * fuelPrice;
+      double calculatedFuelUsed = (distance / 100) * consumption;
+      double calculatedTripCost = calculatedFuelUsed * fuelPrice;
+
+      if (isReturnTrip) {
+        calculatedFuelUsed *= 2;
+        calculatedTripCost *= 2;
+      }
+
+      fuelUsed = calculatedFuelUsed;
+      tripCost = calculatedTripCost;
     });
   }
 
@@ -109,6 +119,16 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                   labelText: 'Fuel Price (\$ per liter)',
                   border: OutlineInputBorder(),
                 ),
+              ),
+
+              SwitchListTile(
+                title: const Text('Return Trip'),
+                value: isReturnTrip,
+                onChanged: (value) {
+                  setState(() {
+                    isReturnTrip = value;
+                  });
+                },
               ),
 
               const SizedBox(height: 24.0),
