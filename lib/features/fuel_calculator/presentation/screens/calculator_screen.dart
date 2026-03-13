@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../logic/fuel_calculator_service.dart';
 
 class CalculatorScreen extends StatefulWidget {
   const CalculatorScreen({super.key});
@@ -79,16 +80,15 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     }
 
     setState(() {
-      double calculatedFuelUsed = (distance! / 100) * consumption!;
-      double calculatedTripCost = calculatedFuelUsed * fuelPrice!;
+      final result = FuelCalculatorService.calculateTrip(
+        distance: distance!,
+        consumption: consumption!,
+        fuelPrice: fuelPrice!,
+        isReturnTrip: isReturnTrip,
+      );
 
-      if (isReturnTrip) {
-        calculatedFuelUsed *= 2;
-        calculatedTripCost *= 2;
-      }
-
-      fuelUsed = calculatedFuelUsed;
-      tripCost = calculatedTripCost;
+      fuelUsed = result['fuelUsed']!;
+      tripCost = result['tripCost']!;
     });
   }
 
